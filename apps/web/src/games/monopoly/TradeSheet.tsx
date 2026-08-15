@@ -4,6 +4,8 @@ import { BottomSheet } from '../shared/BottomSheet';
 import { Button } from '../../ui/Button';
 import { playerColor } from '../shared/playerColors';
 import { canActFor, type GameSession } from '../../session/types';
+import { Avatar } from '../../ui/Avatar';
+import { GROUP_HEX, groupOf } from './theme';
 
 const emptyBundle: TradeBundle = { cash: 0, properties: [], jailCards: 0 };
 
@@ -52,11 +54,27 @@ export function TradeComposeSheet({
       {to === null ? (
         <div className="space-y-2">
           <p className="text-sm text-ink-400">Trade with…</p>
-          {partners.map((p) => (
-            <Button key={p} variant="secondary" className="w-full" onClick={() => setTo(p)}>
-              <span className={playerColor(p).text}>{session.seats[p]?.name ?? `Player ${p + 1}`}</span>
-            </Button>
-          ))}
+          {partners.map((p) => {
+            const deeds = Object.values(state.properties).filter((prop) => prop.owner === p).length;
+            return (
+              <button
+                key={p}
+                onClick={() => setTo(p)}
+                className="flex w-full items-center gap-3 rounded-2xl bg-white/[0.04] p-3 text-left transition-colors active:bg-white/10"
+              >
+                <Avatar seat={p} name={session.seats[p]?.name} />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-semibold text-white">
+                    {session.seats[p]?.name ?? `Player ${p + 1}`}
+                  </span>
+                  <span className="tnum block text-xs text-ink-400">
+                    ${state.players[p]!.cash} · {deeds} deed{deeds === 1 ? '' : 's'}
+                  </span>
+                </span>
+                <span className="text-ink-500">›</span>
+              </button>
+            );
+          })}
         </div>
       ) : (
         <div className="space-y-4">
@@ -66,8 +84,11 @@ export function TradeComposeSheet({
               [`${session.seats[to]?.name} gives`, to, get, setGet],
             ] as const
           ).map(([label, owner, bundle, setBundle]) => (
-            <div key={label} className="rounded-xl bg-ink-900/60 p-3">
-              <p className="mb-2 text-sm font-semibold text-ink-300">{label}</p>
+            <div key={label} className="rounded-2xl bg-white/[0.04] p-3">
+              <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-ink-200">
+                <Avatar seat={owner} name={session.seats[owner]?.name} size="sm" />
+                {label}
+              </p>
               <div className="mb-2 flex items-center gap-2">
                 <span className="text-sm text-ink-400">Cash $</span>
                 <input
@@ -96,12 +117,17 @@ export function TradeComposeSheet({
                   <button
                     key={tile}
                     onClick={() => toggle(bundle, setBundle, tile)}
-                    className={`rounded-full px-2.5 py-1.5 text-xs ${
+                    className={`flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-medium ${
                       bundle.properties.includes(tile)
                         ? 'bg-zest-400 text-ink-950'
-                        : 'bg-ink-700 text-ink-300'
+                        : 'bg-white/8 text-ink-300'
                     }`}
                   >
+                    {/* colour dot makes set-completion obvious while picking */}
+                    <span
+                      className="h-2 w-2 rounded-full"
+                      style={{ background: groupOf(tile) ? GROUP_HEX[groupOf(tile)!] : '#57507d' }}
+                    />
                     {tileName(tile)}
                     {state.properties[tile]!.mortgaged ? ' 🔒' : ''}
                   </button>
@@ -161,11 +187,11 @@ export function TradeRespondSheet({ session }: { session: GameSession<MonopolySt
   return (
     <BottomSheet open title={`Trade: ${fromName} → ${toName}`}>
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-ink-900/60 p-3">
+        <div className="rounded-2xl bg-white/[0.04] p-3">
           <p className={`mb-2 text-xs font-semibold uppercase ${playerColor(trade.from).text}`}>{fromName} gives</p>
           {renderBundle(trade.give)}
         </div>
-        <div className="rounded-xl bg-ink-900/60 p-3">
+        <div className="rounded-2xl bg-white/[0.04] p-3">
           <p className={`mb-2 text-xs font-semibold uppercase ${playerColor(trade.to).text}`}>{toName} gives</p>
           {renderBundle(trade.get)}
         </div>

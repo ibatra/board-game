@@ -36,18 +36,13 @@ export function LocalGame() {
           </button>
         }
       />
-      <PlayerBar
-        session={session}
-        extra={
-          session.def.id === 'monopoly'
-            ? (seat) => {
-                const p = (session.state as { players?: { cash: number; bankrupt: boolean }[] }).players?.[seat];
-                return p ? (p.bankrupt ? '💀' : `$${p.cash}`) : '';
-              }
-            : undefined
-        }
-      />
-      {session.def.id !== 'monopoly' ? <TurnBanner session={session} /> : null}
+      {/* Monopoly brings its own richer table strip and turn panel. */}
+      {session.def.id !== 'monopoly' ? (
+        <>
+          <PlayerBar session={session} />
+          <TurnBanner session={session} />
+        </>
+      ) : null}
       <main className="flex flex-1 flex-col justify-center">
         <Board session={session} />
       </main>
