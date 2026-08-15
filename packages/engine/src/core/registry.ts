@@ -7,6 +7,8 @@ import { snakes } from '../snakes/engine';
 import { snakesAi } from '../snakes/ai';
 import { ludo } from '../ludo/engine';
 import { ludoAi } from '../ludo/ai';
+import { monopoly } from '../monopoly/engine';
+import { monopolyAi } from '../monopoly/ai';
 
 // AI move pickers are attached here so engine files stay dependency-free.
 const games: GameDefinition<any, any>[] = [
@@ -14,6 +16,7 @@ const games: GameDefinition<any, any>[] = [
   { ...connect4, ai: connect4Ai },
   { ...snakes, ai: snakesAi },
   { ...ludo, ai: ludoAi },
+  { ...monopoly, ai: monopolyAi },
 ];
 
 export const GAMES: Partial<Record<GameId, GameDefinition<any, any>>> = Object.fromEntries(
