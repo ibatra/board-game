@@ -1,4 +1,5 @@
 export * from './core/types';
+export * from './core/protocol';
 export * from './core/rng';
 export * from './core/registry';
 export * from './core/replay';

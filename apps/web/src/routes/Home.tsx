@@ -10,6 +10,14 @@ export function Home() {
         <p className="mt-1 text-slate-400">Board games on every phone</p>
       </header>
 
+      <Link
+        to="/online"
+        className="mb-4 block rounded-2xl bg-emerald-600 p-4 text-center shadow transition-colors active:bg-emerald-500"
+      >
+        <p className="text-lg font-bold">📱 Games night mode</p>
+        <p className="mt-0.5 text-sm text-emerald-100">Everyone plays on their own phone</p>
+      </Link>
+
       <div className="grid grid-cols-2 gap-3">
         {GAME_LIST.map((game) => (
           <Link
