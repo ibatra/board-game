@@ -52,13 +52,30 @@ export function OnlineEntry() {
         subtitle="One room, everyone on their own phone"
       />
 
-      {session.errorMsg ? (
+      {__STATIC_DEMO__ ? (
+        <div className="panel p-5">
+          <p className="font-display text-lg font-bold text-white">Not in this preview</p>
+          <p className="mt-2 text-sm leading-relaxed text-ink-400">
+            Online rooms are served by the app&apos;s own WebSocket server, which isn&apos;t part of this
+            static preview. Run <span className="font-mono text-ink-200">bun run dev:server</span> alongside
+            the web app and everyone on the WiFi can join a room by code.
+          </p>
+          <p className="mt-3 text-sm text-ink-400">
+            Everything else works here: pass-and-play on one phone, or against the AI.
+          </p>
+          <Button className="mt-4 w-full" onClick={() => navigate('/')}>
+            Back to games
+          </Button>
+        </div>
+      ) : null}
+
+      {!__STATIC_DEMO__ && session.errorMsg ? (
         <p className="mb-4 rounded-2xl border border-berry-500/30 bg-berry-500/10 px-4 py-3 text-sm text-berry-500">
           {session.errorMsg}
         </p>
       ) : null}
 
-      {mode === 'menu' ? (
+      {!__STATIC_DEMO__ && mode === 'menu' ? (
         <div className="space-y-3">
           <button
             onClick={() => setMode('create')}
@@ -78,7 +95,7 @@ export function OnlineEntry() {
         </div>
       ) : null}
 
-      {mode === 'create' ? (
+      {!__STATIC_DEMO__ && mode === 'create' ? (
         <div className="space-y-5">
           {nameInput}
           <div>
@@ -123,7 +140,7 @@ export function OnlineEntry() {
         </div>
       ) : null}
 
-      {mode === 'join' ? (
+      {!__STATIC_DEMO__ && mode === 'join' ? (
         <div className="space-y-5">
           {nameInput}
           <div>

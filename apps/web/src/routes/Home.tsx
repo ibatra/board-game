@@ -27,7 +27,11 @@ export function Home() {
           </span>
           <div className="min-w-0">
             <p className="font-display text-lg font-bold text-white">Start a games night</p>
-            <p className="mt-0.5 text-sm text-white/70">Share a code — everyone joins from their own phone</p>
+            <p className="mt-0.5 text-sm text-white/70">
+              {__STATIC_DEMO__
+                ? 'Needs the game server — tap to see how'
+                : 'Share a code — everyone joins from their own phone'}
+            </p>
           </div>
         </div>
         {/* Soft light bloom in the corner. */}
@@ -63,12 +67,14 @@ export function Home() {
         })}
       </div>
 
-      <p className="mt-8 text-center text-xs text-ink-500">
-        Got a code?{' '}
-        <Link to="/online?join=1" className="font-semibold text-zest-400">
-          Join a room
-        </Link>
-      </p>
+      {__STATIC_DEMO__ ? null : (
+        <p className="mt-8 text-center text-xs text-ink-500">
+          Got a code?{' '}
+          <Link to="/online?join=1" className="font-semibold text-zest-400">
+            Join a room
+          </Link>
+        </p>
+      )}
     </Screen>
   );
 }

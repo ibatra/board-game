@@ -26,7 +26,13 @@ Open http://localhost:5173. For phones on your LAN:
 bun test           # engine test suite (rules, AI, invariants)
 bun run typecheck  # strict TS across all packages
 bun run build      # production build of the web app
+bun run build:demo # one self-contained index.html for any static host
 ```
+
+`build:demo` inlines the JS, CSS and fonts into a single `apps/web/dist/index.html`
+and switches to hash routing, so it runs from a static host with no rewrite
+rules. Online rooms need the WebSocket server, so that build offers
+pass-and-play and AI only and says so on the online screen.
 
 ## How it's put together
 
