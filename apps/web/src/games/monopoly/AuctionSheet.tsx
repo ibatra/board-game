@@ -17,8 +17,8 @@ export function AuctionSheet({ session }: { session: GameSession<MonopolyState> 
   return (
     <BottomSheet open title={`Auction: ${tileName(auction.tile)}`}>
       <div className="space-y-4">
-        <div className="flex items-center justify-between rounded-xl bg-slate-900/60 p-3">
-          <span className="text-slate-400">High bid</span>
+        <div className="flex items-center justify-between rounded-xl bg-ink-900/60 p-3">
+          <span className="text-ink-400">High bid</span>
           <span className="text-xl font-bold">
             {auction.highBidder !== null ? (
               <>
@@ -36,7 +36,7 @@ export function AuctionSheet({ session }: { session: GameSession<MonopolyState> 
         <p className="text-center text-sm">
           <span className={`font-semibold ${playerColor(bidder).text}`}>{name}</span>
           {iAct ? ' — your bid' : ' is deciding…'}
-          <span className="text-slate-400"> (has ${cash})</span>
+          <span className="text-ink-400"> (has ${cash})</span>
         </p>
 
         {iAct ? (
@@ -62,7 +62,7 @@ export function AuctionSheet({ session }: { session: GameSession<MonopolyState> 
           </>
         ) : null}
 
-        <div className="flex flex-wrap gap-2 text-xs text-slate-400">
+        <div className="flex flex-wrap gap-2 text-xs text-ink-400">
           {state.players.map((p, seat) =>
             p.bankrupt ? null : (
               <span key={seat} className={auction.out[seat] ? 'line-through opacity-50' : ''}>

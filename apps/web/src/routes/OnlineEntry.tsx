@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { GAME_LIST, type GameId } from '@bg/engine';
 import { useOnlineSession } from '../session/onlineSession';
-import { GAME_EMOJI } from '../games/boardRegistry';
 import { Button } from '../ui/Button';
+import { CodeInput } from '../ui/CodeInput';
+import { GameArt, gameTheme } from '../ui/GameArt';
+import { Screen, SectionLabel, TopBar } from '../ui/Screen';
 
 export function OnlineEntry() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const session = useOnlineSession();
   const [name, setName] = useState(() => localStorage.getItem('playerName') ?? '');
-  const [mode, setMode] = useState<'menu' | 'create' | 'join'>(params.get('code') ? 'join' : 'menu');
+  const [mode, setMode] = useState<'menu' | 'create' | 'join'>(
+    params.get('code') || params.get('join') ? 'join' : 'menu',
+  );
   const [code, setCode] = useState(params.get('code') ?? '');
   const [game, setGame] = useState<GameId | null>((params.get('game') as GameId) ?? null);
 
@@ -25,58 +29,89 @@ export function OnlineEntry() {
   }
 
   const nameInput = (
-    <input
-      value={name}
-      onChange={(e) => setName(e.target.value)}
-      placeholder="Your name"
-      maxLength={16}
-      className="w-full rounded-xl bg-slate-800 px-4 py-3 text-lg outline-none focus:ring-2 focus:ring-emerald-500"
-    />
+    <label className="block">
+      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-ink-400">
+        Your name
+      </span>
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Your name"
+        maxLength={16}
+        className="w-full rounded-2xl border border-white/8 bg-ink-850 px-4 py-3.5 text-lg font-medium text-white outline-none placeholder:text-ink-600 focus:border-grape-400 focus:ring-2 focus:ring-grape-500/40"
+      />
+    </label>
   );
 
   return (
-    <div className="mx-auto max-w-md px-4 pb-8">
-      <header className="flex items-center gap-3 py-4">
-        <Link to="/" className="text-2xl">←</Link>
-        <h1 className="text-xl font-bold">Play online</h1>
-      </header>
-
-      <p className="mb-6 text-sm text-slate-400">
-        One person creates a room and shares the code — everyone else joins on their own phone.
-      </p>
+    <Screen>
+      <TopBar
+        to="/"
+        onBack={mode === 'menu' ? undefined : () => setMode('menu')}
+        title="Games night mode"
+        subtitle="One room, everyone on their own phone"
+      />
 
       {session.errorMsg ? (
-        <p className="mb-4 rounded-xl bg-rose-950/60 px-4 py-3 text-sm text-rose-300">{session.errorMsg}</p>
+        <p className="mb-4 rounded-2xl border border-berry-500/30 bg-berry-500/10 px-4 py-3 text-sm text-berry-500">
+          {session.errorMsg}
+        </p>
       ) : null}
 
       {mode === 'menu' ? (
         <div className="space-y-3">
-          <Button className="w-full text-lg" onClick={() => setMode('create')}>
-            Create a room
-          </Button>
-          <Button variant="secondary" className="w-full text-lg" onClick={() => setMode('join')}>
-            Join with a code
-          </Button>
+          <button
+            onClick={() => setMode('create')}
+            className="grain relative block w-full overflow-hidden rounded-3xl bg-gradient-to-br from-grape-500 to-grape-600 p-5 text-left shadow-pop transition-transform active:scale-[0.985]"
+          >
+            <p className="font-display text-xl font-bold text-white">Create a room</p>
+            <p className="mt-1 text-sm text-white/70">Pick a game, get a code, invite the table</p>
+            <span className="pointer-events-none absolute -right-8 -top-12 h-32 w-32 rounded-full bg-white/20 blur-2xl" />
+          </button>
+          <button
+            onClick={() => setMode('join')}
+            className="block w-full rounded-3xl border border-white/8 bg-ink-850 p-5 text-left shadow-pop transition-transform active:scale-[0.985]"
+          >
+            <p className="font-display text-xl font-bold text-white">Join with a code</p>
+            <p className="mt-1 text-sm text-ink-400">Someone already started one</p>
+          </button>
         </div>
       ) : null}
 
       {mode === 'create' ? (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {nameInput}
-          <div className="grid grid-cols-2 gap-2">
-            {GAME_LIST.map((g) => (
-              <button
-                key={g.id}
-                onClick={() => setGame(g.id)}
-                className={`rounded-xl p-3 text-left ${game === g.id ? 'bg-emerald-600' : 'bg-slate-800'}`}
-              >
-                <span className="text-2xl">{GAME_EMOJI[g.id]}</span>
-                <p className="mt-1 text-sm font-semibold">{g.name}</p>
-              </button>
-            ))}
+          <div>
+            <SectionLabel>Choose a game</SectionLabel>
+            <div className="grid grid-cols-3 gap-2">
+              {GAME_LIST.map((g) => {
+                const theme = gameTheme(g.id);
+                const active = game === g.id;
+                return (
+                  <button
+                    key={g.id}
+                    onClick={() => setGame(g.id)}
+                    className={`rounded-2xl border p-2 text-center transition-colors ${
+                      active ? 'border-zest-400 bg-zest-400/10' : 'border-white/8 bg-ink-850'
+                    }`}
+                    aria-pressed={active}
+                  >
+                    <span
+                      className={`grain relative mx-auto flex aspect-square w-full items-center justify-center rounded-xl bg-gradient-to-br ${theme.tile}`}
+                    >
+                      <GameArt id={g.id} className="h-3/5 w-3/5" />
+                    </span>
+                    <span className="mt-1.5 block text-[11px] font-semibold leading-tight text-ink-200">
+                      {g.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
           <Button
-            className="w-full text-lg"
+            size="lg"
+            className="w-full"
             disabled={!name.trim() || !game || session.status === 'connecting'}
             onClick={() => {
               remember();
@@ -85,26 +120,21 @@ export function OnlineEntry() {
           >
             {session.status === 'connecting' ? 'Creating…' : 'Create room'}
           </Button>
-          <Button variant="ghost" className="w-full" onClick={() => setMode('menu')}>
-            Back
-          </Button>
         </div>
       ) : null}
 
       {mode === 'join' ? (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {nameInput}
-          <input
-            value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-            placeholder="ROOM CODE"
-            maxLength={5}
-            autoCapitalize="characters"
-            autoCorrect="off"
-            className="w-full rounded-xl bg-slate-800 px-4 py-3 text-center text-2xl font-bold tracking-[0.4em] outline-none focus:ring-2 focus:ring-emerald-500"
-          />
+          <div>
+            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-ink-400">
+              Room code
+            </span>
+            <CodeInput value={code} onChange={setCode} />
+          </div>
           <Button
-            className="w-full text-lg"
+            size="lg"
+            className="w-full"
             disabled={!name.trim() || code.length < 5 || session.status === 'connecting'}
             onClick={() => {
               remember();
@@ -113,11 +143,8 @@ export function OnlineEntry() {
           >
             {session.status === 'connecting' ? 'Joining…' : 'Join room'}
           </Button>
-          <Button variant="ghost" className="w-full" onClick={() => setMode('menu')}>
-            Back
-          </Button>
         </div>
       ) : null}
-    </div>
+    </Screen>
   );
 }

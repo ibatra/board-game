@@ -1,12 +1,14 @@
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useLocalSession } from '../session/localSession';
 import { BOARDS } from '../games/boardRegistry';
+import { GameHeader } from '../games/shared/GameHeader';
 import { PlayerBar } from '../games/shared/PlayerBar';
 import { TurnBanner } from '../games/shared/TurnBanner';
 import { WinnerOverlay } from '../games/shared/WinnerOverlay';
 
 export function LocalGame() {
   const { gameId } = useParams();
+  const navigate = useNavigate();
   const session = useLocalSession();
 
   if (!session.def || session.def.id !== gameId || !session.state) {
@@ -14,21 +16,26 @@ export function LocalGame() {
   }
 
   const Board = BOARDS[session.def.id];
-  if (!Board) {
-    return <p className="p-8 text-center">Board not implemented yet.</p>;
-  }
+  if (!Board) return <p className="p-8 text-center">Board not implemented yet.</p>;
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="flex items-center justify-between px-3 py-2">
-        <Link to={`/play/${gameId}`} className="p-2 text-xl" aria-label="Back">
-          ←
-        </Link>
-        <span className="font-bold">{session.def.name}</span>
-        <button onClick={() => session.restart()} className="p-2 text-xl" aria-label="Restart">
-          ↺
-        </button>
-      </header>
+      <GameHeader
+        onBack={() => navigate(`/play/${gameId}`)}
+        title={session.def.name}
+        right={
+          <button
+            onClick={() => session.restart()}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-ink-300 transition-colors active:bg-white/10"
+            aria-label="Restart"
+          >
+            <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none" stroke="currentColor" strokeWidth="2.2">
+              <path d="M4 12a8 8 0 1 1 2.5 5.8" strokeLinecap="round" />
+              <path d="M4 19v-5h5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        }
+      />
       <PlayerBar
         session={session}
         extra={

@@ -39,8 +39,8 @@ export function TileDetailSheet({
             </tbody>
           </table>
           {prop && prop.owner !== null ? (
-            <p className="text-sm text-slate-400">
-              Current rent: <span className="font-semibold text-slate-200">${rentFor(state, tile, 7)}</span>
+            <p className="text-sm text-ink-400">
+              Current rent: <span className="font-semibold text-ink-200">${rentFor(state, tile, 7)}</span>
               {(GROUP_TILES[def.group] ?? []).every((t) => state.properties[t]!.owner === prop.owner)
                 ? ' (full set)'
                 : ''}
@@ -74,7 +74,7 @@ export function TileDetailSheet({
           </table>
         </div>
       ) : (
-        <p className="text-slate-300">
+        <p className="text-ink-300">
           {def.kind === 'go' && 'Collect $200 salary as you pass.'}
           {def.kind === 'jail' && 'Just visiting — unless you were sent here.'}
           {def.kind === 'freeParking' && 'Free resting spot. Nothing happens.'}
@@ -89,8 +89,8 @@ export function TileDetailSheet({
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <tr className="border-b border-slate-700/60 last:border-0">
-      <td className="py-1.5 text-slate-400">{label}</td>
+    <tr className="border-b border-white/8 last:border-0">
+      <td className="py-1.5 text-ink-400">{label}</td>
       <td className="py-1.5 text-right font-medium">{value}</td>
     </tr>
   );
@@ -107,15 +107,15 @@ function Ownership({
 }) {
   const prop = state.properties[tile];
   if (!prop) return null;
-  if (prop.owner === null) return <p className="text-sm text-slate-400">Unowned</p>;
+  if (prop.owner === null) return <p className="text-sm text-ink-400">Unowned</p>;
   const color = playerColor(prop.owner);
   return (
     <p className="flex items-center gap-2 text-sm">
       <span className={`h-3 w-3 rounded-full ${color.bg}`} />
       Owned by {session.seats[prop.owner]?.name ?? `Player ${prop.owner + 1}`}
-      {prop.mortgaged ? <span className="text-slate-400"> · mortgaged 🔒</span> : null}
+      {prop.mortgaged ? <span className="text-ink-400"> · mortgaged 🔒</span> : null}
       {prop.houses > 0 ? (
-        <span className="text-slate-400"> · {prop.houses === 5 ? 'hotel' : `${prop.houses} house${prop.houses > 1 ? 's' : ''}`}</span>
+        <span className="text-ink-400"> · {prop.houses === 5 ? 'hotel' : `${prop.houses} house${prop.houses > 1 ? 's' : ''}`}</span>
       ) : null}
     </p>
   );

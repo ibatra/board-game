@@ -5,6 +5,8 @@ import { useLocalSession } from '../session/localSession';
 import type { SeatConfig } from '../session/types';
 import { playerColor } from '../games/shared/playerColors';
 import { Button } from '../ui/Button';
+import { GameArt, gameTheme } from '../ui/GameArt';
+import { Screen, SectionLabel, TopBar } from '../ui/Screen';
 
 export function GameSetup() {
   const { gameId } = useParams();
@@ -14,20 +16,19 @@ export function GameSetup() {
 
   const [seats, setSeats] = useState<SeatConfig[]>(() => [
     { name: 'Player 1', isBot: false },
-    { name: 'Player 2', isBot: false },
+    { name: 'Player 2', isBot: true },
   ]);
 
   if (!def) {
     return (
-      <div className="p-8 text-center">
-        <p>Game not found.</p>
-        <Link to="/" className="text-emerald-400 underline">
-          Back home
-        </Link>
-      </div>
+      <Screen>
+        <TopBar to="/" title="Game not found" />
+        <p className="text-ink-400">That game doesn&apos;t exist.</p>
+      </Screen>
     );
   }
 
+  const theme = gameTheme(def.id);
   const canAdd = seats.length < def.players.max;
   const canRemove = seats.length > def.players.min;
   const hasHuman = seats.some((s) => !s.isBot);
@@ -37,59 +38,79 @@ export function GameSetup() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 pb-8">
-      <header className="flex items-center gap-3 py-4">
-        <Link to="/" className="text-2xl">
-          ←
-        </Link>
-        <h1 className="text-xl font-bold">{def.name}</h1>
-      </header>
+    <Screen>
+      <TopBar to="/" title={def.name} subtitle={def.description} />
 
-      <h2 className="mb-2 font-semibold text-slate-300">Players</h2>
+      <div
+        className={`grain relative flex h-32 items-center justify-center rounded-3xl bg-gradient-to-br ${theme.tile}`}
+      >
+        <GameArt id={def.id} className="h-20 w-20 drop-shadow-xl" />
+      </div>
+
+      <SectionLabel>Who&apos;s playing</SectionLabel>
+
       <div className="space-y-2">
         {seats.map((seat, i) => (
-          <div key={i} className="flex items-center gap-2 rounded-xl bg-slate-800 p-2">
-            <span className={`h-4 w-4 shrink-0 rounded-full ${playerColor(i).bg}`} />
+          <div key={i} className="flex items-center gap-2 rounded-2xl border border-white/8 bg-ink-850 p-2">
+            <span
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-display text-sm font-bold text-ink-950"
+              style={{ background: playerColor(i).hex }}
+            >
+              {i + 1}
+            </span>
             <input
               value={seat.name}
               onChange={(e) => update(i, { name: e.target.value })}
-              className="min-w-0 flex-1 rounded-lg bg-slate-900 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
+              className="min-w-0 flex-1 rounded-xl bg-transparent px-2 py-2 font-medium text-white outline-none focus:bg-ink-900 focus:ring-2 focus:ring-grape-500"
               maxLength={16}
+              aria-label={`Player ${i + 1} name`}
             />
-            <Button
-              variant={seat.isBot ? 'primary' : 'secondary'}
-              className="min-h-10 shrink-0 px-3 text-sm"
-              onClick={() => update(i, { isBot: !seat.isBot, name: seat.isBot ? `Player ${i + 1}` : `Bot ${i + 1}` })}
-            >
-              {seat.isBot ? '🤖 Bot' : '🧑 Human'}
-            </Button>
+            {/* Segmented human/bot switch — reads at a glance across the table. */}
+            <div className="flex shrink-0 rounded-xl bg-ink-900 p-0.5 text-sm font-semibold">
+              {(['human', 'bot'] as const).map((kind) => {
+                const active = (kind === 'bot') === seat.isBot;
+                return (
+                  <button
+                    key={kind}
+                    onClick={() =>
+                      update(i, {
+                        isBot: kind === 'bot',
+                        name: kind === 'bot' ? `Bot ${i + 1}` : `Player ${i + 1}`,
+                      })
+                    }
+                    className={`rounded-[10px] px-2.5 py-1.5 transition-colors ${
+                      active ? 'bg-ink-600 text-white' : 'text-ink-500'
+                    }`}
+                    aria-pressed={active}
+                  >
+                    {kind === 'bot' ? '🤖' : '🧑'}
+                  </button>
+                );
+              })}
+            </div>
             {canRemove ? (
-              <Button
-                variant="ghost"
-                className="min-h-10 shrink-0 px-2"
+              <button
+                className="shrink-0 rounded-xl px-2 py-2 text-ink-500 transition-colors active:text-berry-500"
                 onClick={() => setSeats((prev) => prev.filter((_, j) => j !== i))}
-                aria-label="Remove player"
+                aria-label={`Remove player ${i + 1}`}
               >
                 ✕
-              </Button>
+              </button>
             ) : null}
           </div>
         ))}
       </div>
 
       {canAdd ? (
-        <Button
-          variant="secondary"
-          className="mt-3 w-full"
-          onClick={() => setSeats((prev) => [...prev, { name: `Player ${prev.length + 1}`, isBot: false }])}
-        >
+        <Button variant="ghost" className="mt-2 w-full" onClick={() => setSeats((prev) => [...prev, { name: `Player ${prev.length + 1}`, isBot: false }])}>
           + Add player
         </Button>
       ) : null}
 
       <div className="mt-8 space-y-3">
         <Button
-          className="w-full text-lg"
+          size="lg"
+          className="w-full"
           disabled={!hasHuman}
           onClick={() => {
             start(def, seats);
@@ -98,11 +119,17 @@ export function GameSetup() {
         >
           Start game
         </Button>
-        {!hasHuman ? <p className="text-center text-sm text-slate-500">At least one human player needed</p> : null}
-        <p className="text-center text-sm text-slate-500">
-          Playing on separate phones? <Link to="/online" className="text-emerald-400 underline">Play online</Link>
-        </p>
+        {!hasHuman ? (
+          <p className="text-center text-sm text-ink-500">Add at least one human player</p>
+        ) : (
+          <p className="text-center text-sm text-ink-500">
+            On separate phones?{' '}
+            <Link to="/online" className="font-semibold text-zest-400">
+              Play online
+            </Link>
+          </p>
+        )}
       </div>
-    </div>
+    </Screen>
   );
 }

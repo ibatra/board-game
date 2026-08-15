@@ -51,7 +51,7 @@ export function TradeComposeSheet({
     <BottomSheet open={open} title="Propose a trade" onClose={() => { reset(); onClose(); }}>
       {to === null ? (
         <div className="space-y-2">
-          <p className="text-sm text-slate-400">Trade with…</p>
+          <p className="text-sm text-ink-400">Trade with…</p>
           {partners.map((p) => (
             <Button key={p} variant="secondary" className="w-full" onClick={() => setTo(p)}>
               <span className={playerColor(p).text}>{session.seats[p]?.name ?? `Player ${p + 1}`}</span>
@@ -66,10 +66,10 @@ export function TradeComposeSheet({
               [`${session.seats[to]?.name} gives`, to, get, setGet],
             ] as const
           ).map(([label, owner, bundle, setBundle]) => (
-            <div key={label} className="rounded-xl bg-slate-900/60 p-3">
-              <p className="mb-2 text-sm font-semibold text-slate-300">{label}</p>
+            <div key={label} className="rounded-xl bg-ink-900/60 p-3">
+              <p className="mb-2 text-sm font-semibold text-ink-300">{label}</p>
               <div className="mb-2 flex items-center gap-2">
-                <span className="text-sm text-slate-400">Cash $</span>
+                <span className="text-sm text-ink-400">Cash $</span>
                 <input
                   type="number"
                   min={0}
@@ -77,11 +77,11 @@ export function TradeComposeSheet({
                   value={bundle.cash || ''}
                   placeholder="0"
                   onChange={(e) => setBundle({ ...bundle, cash: Math.max(0, Number(e.target.value) || 0) })}
-                  className="w-24 rounded-lg bg-slate-800 px-2 py-1.5 outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-24 rounded-lg bg-ink-800 px-2 py-1.5 outline-none focus:ring-2 focus:ring-grape-500"
                 />
-                <span className="text-xs text-slate-500">of ${state.players[owner]!.cash}</span>
+                <span className="text-xs text-ink-500">of ${state.players[owner]!.cash}</span>
                 {state.players[owner]!.getOutCards > 0 ? (
-                  <label className="ml-auto flex items-center gap-1 text-xs text-slate-400">
+                  <label className="ml-auto flex items-center gap-1 text-xs text-ink-400">
                     <input
                       type="checkbox"
                       checked={bundle.jailCards > 0}
@@ -98,15 +98,15 @@ export function TradeComposeSheet({
                     onClick={() => toggle(bundle, setBundle, tile)}
                     className={`rounded-full px-2.5 py-1.5 text-xs ${
                       bundle.properties.includes(tile)
-                        ? 'bg-emerald-500 text-emerald-950'
-                        : 'bg-slate-700 text-slate-300'
+                        ? 'bg-zest-400 text-ink-950'
+                        : 'bg-ink-700 text-ink-300'
                     }`}
                   >
                     {tileName(tile)}
                     {state.properties[tile]!.mortgaged ? ' 🔒' : ''}
                   </button>
                 ))}
-                {propsOf(owner).length === 0 ? <span className="text-xs text-slate-500">No properties</span> : null}
+                {propsOf(owner).length === 0 ? <span className="text-xs text-ink-500">No properties</span> : null}
               </div>
             </div>
           ))}
@@ -153,7 +153,7 @@ export function TradeRespondSheet({ session }: { session: GameSession<MonopolySt
       ))}
       {bundle.jailCards > 0 ? <li>🎟️ Get Out of Jail Free ×{bundle.jailCards}</li> : null}
       {bundle.cash === 0 && bundle.properties.length === 0 && bundle.jailCards === 0 ? (
-        <li className="text-slate-500">nothing</li>
+        <li className="text-ink-500">nothing</li>
       ) : null}
     </ul>
   );
@@ -161,11 +161,11 @@ export function TradeRespondSheet({ session }: { session: GameSession<MonopolySt
   return (
     <BottomSheet open title={`Trade: ${fromName} → ${toName}`}>
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-slate-900/60 p-3">
+        <div className="rounded-xl bg-ink-900/60 p-3">
           <p className={`mb-2 text-xs font-semibold uppercase ${playerColor(trade.from).text}`}>{fromName} gives</p>
           {renderBundle(trade.give)}
         </div>
-        <div className="rounded-xl bg-slate-900/60 p-3">
+        <div className="rounded-xl bg-ink-900/60 p-3">
           <p className={`mb-2 text-xs font-semibold uppercase ${playerColor(trade.to).text}`}>{toName} gives</p>
           {renderBundle(trade.get)}
         </div>
@@ -180,7 +180,7 @@ export function TradeRespondSheet({ session }: { session: GameSession<MonopolySt
           </Button>
         </div>
       ) : (
-        <p className="mt-4 text-center text-sm text-slate-400">Waiting for {toName}…</p>
+        <p className="mt-4 text-center text-sm text-ink-400">Waiting for {toName}…</p>
       )}
       {proposerActs && !responderActs ? (
         <Button variant="ghost" className="mt-2 w-full" onClick={() => session.dispatch({ type: 'cancelTrade' }, trade.from)}>

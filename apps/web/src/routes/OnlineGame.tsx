@@ -3,9 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getGame } from '@bg/engine';
 import { useOnlineSession } from '../session/onlineSession';
 import { BOARDS } from '../games/boardRegistry';
+import { GameHeader } from '../games/shared/GameHeader';
 import { PlayerBar } from '../games/shared/PlayerBar';
 import { TurnBanner } from '../games/shared/TurnBanner';
 import { WinnerOverlay } from '../games/shared/WinnerOverlay';
+import { Button } from '../ui/Button';
 
 export function OnlineGame() {
   const { code } = useParams();
@@ -24,17 +26,28 @@ export function OnlineGame() {
 
   if (session.status === 'error') {
     return (
-      <div className="p-8 text-center">
-        <p className="text-rose-300">{session.errorMsg}</p>
-        <button className="mt-4 text-emerald-400 underline" onClick={() => { session.leave(); navigate('/online'); }}>
+      <div className="mx-auto max-w-md p-8 text-center">
+        <p className="text-berry-500">{session.errorMsg}</p>
+        <Button
+          className="mt-4"
+          onClick={() => {
+            session.leave();
+            navigate('/online');
+          }}
+        >
           Back to online
-        </button>
+        </Button>
       </div>
     );
   }
 
   if (!def || !session.state) {
-    return <p className="p-8 text-center text-slate-400">Loading game…</p>;
+    return (
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-3 text-ink-400">
+        <span className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-grape-400" />
+        <p className="text-sm">Joining room {code}…</p>
+      </div>
+    );
   }
 
   const Board = BOARDS[def.id];
@@ -42,20 +55,26 @@ export function OnlineGame() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="flex items-center justify-between px-3 py-2">
-        <button onClick={() => { session.leave(); navigate('/'); }} className="p-2 text-xl" aria-label="Leave">
-          ←
-        </button>
-        <span className="font-bold">
-          {def.name} <span className="text-sm font-normal text-slate-500">· {code}</span>
-        </span>
-        <span
-          className={`h-2.5 w-2.5 rounded-full ${
-            session.status === 'connected' ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'
-          }`}
-          title={session.status}
-        />
-      </header>
+      <GameHeader
+        onBack={() => {
+          session.leave();
+          navigate('/');
+        }}
+        title={def.name}
+        badge={
+          <span className="tnum rounded-full bg-white/5 px-2 py-0.5 text-xs font-semibold tracking-widest text-ink-400">
+            {code}
+          </span>
+        }
+        right={
+          <span
+            className={`h-2.5 w-2.5 rounded-full ${
+              session.status === 'connected' ? 'bg-mint-400' : 'animate-pulse bg-flame-400'
+            }`}
+            title={session.status}
+          />
+        }
+      />
       <PlayerBar
         session={session}
         extra={
@@ -72,7 +91,7 @@ export function OnlineGame() {
         <Board session={session} />
       </main>
       {session.status === 'reconnecting' ? (
-        <p className="fixed inset-x-0 top-0 z-50 bg-amber-500 py-1 text-center text-sm font-medium text-amber-950">
+        <p className="fixed inset-x-0 top-0 z-50 bg-flame-500 py-1.5 text-center text-sm font-semibold text-white">
           Reconnecting…
         </p>
       ) : null}

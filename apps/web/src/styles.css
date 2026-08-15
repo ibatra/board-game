@@ -1,8 +1,45 @@
 @import "tailwindcss";
 
+@import "@fontsource-variable/outfit";
+@import "@fontsource-variable/inter";
+
+/* ── Design tokens ─────────────────────────────────────────────────────────
+   A late-night games table: deep indigo felt, warm lamplight, one loud
+   chartreuse accent for anything you can tap.                             */
 @theme {
-  --color-board: #0f172a;
-  --color-felt: #14532d;
+  --font-display: "Outfit Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* Surfaces, dark → light */
+  --color-ink-950: #08070f;
+  --color-ink-900: #0e0c1a;
+  --color-ink-850: #151327;
+  --color-ink-800: #1c1930;
+  --color-ink-700: #272341;
+  --color-ink-600: #3a3459;
+  --color-ink-500: #574f7d;
+  --color-ink-400: #8079a6;
+  --color-ink-300: #b3adcc;
+  --color-ink-200: #dcd9ea;
+
+  /* Accents */
+  --color-zest-400: #d7f24e;
+  --color-zest-500: #c3e029;
+  --color-zest-600: #a1bc12;
+  --color-grape-400: #a78bfa;
+  --color-grape-500: #7c5cff;
+  --color-grape-600: #5b3fd6;
+  --color-flame-400: #ff8a5b;
+  --color-flame-500: #f4623a;
+  --color-berry-500: #f43f7a;
+  --color-mint-400: #4ade9b;
+
+  /* Game felt */
+  --color-felt-800: #123a2e;
+  --color-felt-700: #174a39;
+
+  --shadow-pop: 0 1px 0 0 rgb(255 255 255 / 0.08) inset, 0 10px 30px -12px rgb(0 0 0 / 0.9);
+  --shadow-glow: 0 0 40px -8px var(--color-grape-500);
 }
 
 html,
@@ -12,9 +49,15 @@ body {
 }
 
 body {
-  @apply bg-slate-950 text-slate-100 antialiased;
+  @apply bg-ink-950 font-sans text-ink-200 antialiased;
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
+  /* Lamplight pooling at the top of the table. */
+  background-image:
+    radial-gradient(90rem 40rem at 50% -18rem, rgb(124 92 255 / 0.28), transparent 70%),
+    radial-gradient(50rem 30rem at 110% 10%, rgb(244 98 58 / 0.12), transparent 65%),
+    radial-gradient(60rem 40rem at -10% 40%, rgb(74 222 155 / 0.08), transparent 60%);
+  background-attachment: fixed;
 }
 
 button,
@@ -23,4 +66,106 @@ a,
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
+}
+
+h1,
+h2,
+h3 {
+  @apply font-display;
+  letter-spacing: -0.02em;
+}
+
+/* Money, dice totals, room codes — keep digits from jittering. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hairline-lit panel: the workhorse surface of the whole app. */
+.panel {
+  @apply rounded-3xl border border-white/8 bg-ink-850/80 shadow-pop backdrop-blur-sm;
+}
+
+.hairline {
+  @apply border border-white/8;
+}
+
+/* Grain keeps big flat fills from banding on OLED phones. */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+  60% {
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes sheet-up {
+  from {
+    transform: translateY(12%);
+    opacity: 0.5;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.72;
+    transform: scale(1.06);
+  }
+}
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.animate-rise {
+  animation: rise 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.animate-pop-in {
+  animation: pop-in 0.32s cubic-bezier(0.2, 1.2, 0.4, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

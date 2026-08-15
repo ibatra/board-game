@@ -14,11 +14,3 @@ export const BOARDS: Record<string, ComponentType<{ session: GameSession<any> }>
   ludo: LudoBoard,
   monopoly: MonopolyGame,
 };
-
-export const GAME_EMOJI: Record<string, string> = {
-  tictactoe: '✕⃝',
-  connect4: '🔴',
-  snakes: '🐍',
-  ludo: '🎲',
-  monopoly: '🎩',
-};

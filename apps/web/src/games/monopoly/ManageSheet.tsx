@@ -33,7 +33,7 @@ export function ManageSheet({
 
   return (
     <BottomSheet open={open} title={`Properties — $${state.players[seat]!.cash}`} onClose={onClose}>
-      {mine.length === 0 ? <p className="text-slate-400">You own nothing yet.</p> : null}
+      {mine.length === 0 ? <p className="text-ink-400">You own nothing yet.</p> : null}
       <div className="space-y-4">
         {[...byGroup.entries()].map(([group, tiles]) => {
           const fullSet =
@@ -44,7 +44,7 @@ export function ManageSheet({
             <div key={group}>
               <div className="mb-1 flex items-center gap-2">
                 <span className="h-3 w-8 rounded" style={{ background: GROUP_HEX[group] }} />
-                <span className="text-xs uppercase tracking-wide text-slate-400">
+                <span className="text-xs uppercase tracking-wide text-ink-400">
                   {group}
                   {fullSet ? ' · full set' : ''}
                 </span>
@@ -57,7 +57,7 @@ export function ManageSheet({
                   const houseCost = isStreet && def.kind === 'street' ? HOUSE_COST[def.group]! : 0;
                   const mortgageValue = (def.kind === 'street' || def.kind === 'railroad' || def.kind === 'utility' ? def.price : 0) / 2;
                   return (
-                    <div key={tile} className="flex items-center gap-2 rounded-lg bg-slate-900/60 p-2">
+                    <div key={tile} className="flex items-center gap-2 rounded-lg bg-ink-900/60 p-2">
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">
                           {tileName(tile)}
