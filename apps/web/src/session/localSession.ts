@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import type { BaseState, GameAction, GameDefinition, PlayerId } from '@bg/engine';
-import type { GameSession, SeatConfig } from './types';
+import type { BaseState, GameDefinition, PlayerId } from '@bg/engine';
+import type { AnyAction, GameSession, SeatConfig } from './types';
 
 const BOT_DELAY_MS = 650;
 
@@ -11,25 +11,37 @@ interface LocalSessionStore extends GameSession {
 }
 
 let botTimer: ReturnType<typeof setTimeout> | null = null;
+let generation = 0;
+
+/** A bot must act whenever it has legal actions — its turn, an auction bid,
+ *  a trade response — regardless of whose turn the state nominally is. */
+function botToAct(def: GameDefinition<any, any>, state: BaseState, seats: SeatConfig[]): PlayerId | null {
+  if (!def.ai || state.result) return null;
+  for (let seat = 0; seat < seats.length; seat++) {
+    if (!seats[seat]?.isBot) continue;
+    if (def.legalActions(state, seat).length > 0) return seat;
+  }
+  return null;
+}
 
 export const useLocalSession = create<LocalSessionStore>((set, get) => {
   function scheduleBot() {
     if (botTimer) clearTimeout(botTimer);
     const { def, state, seats } = get();
-    if (!def || !state || state.result) return;
-    const seat = seats[state.currentPlayer];
-    if (!seat?.isBot || !def.ai) return;
+    if (!def || !state) return;
+    const seat = botToAct(def, state, seats);
+    if (seat === null) return;
+    const gen = generation;
     botTimer = setTimeout(() => {
       const { def, state, seats } = get();
-      if (!def?.ai || !state || state.result) return;
-      // The bot to act may have changed if the user restarted mid-delay.
-      const current = state.currentPlayer;
-      if (!seats[current]?.isBot) return;
-      applyAction(def.ai(state, current), current);
+      if (gen !== generation || !def?.ai || !state) return;
+      const seat = botToAct(def, state, seats);
+      if (seat === null) return;
+      applyAction(def.ai(state, seat), seat);
     }, BOT_DELAY_MS);
   }
 
-  function applyAction(action: GameAction, actor: PlayerId) {
+  function applyAction(action: AnyAction, actor: PlayerId) {
     const { def, state } = get();
     if (!def || !state) return;
     const result = def.reduce(state, action, actor);
@@ -49,6 +61,7 @@ export const useLocalSession = create<LocalSessionStore>((set, get) => {
     lastError: null,
     start(def, seats) {
       if (botTimer) clearTimeout(botTimer);
+      generation++;
       const seed = (Math.random() * 0xffffffff) >>> 0;
       set({ def, seats, state: def.setup(seats.length, seed), lastError: null });
       scheduleBot();

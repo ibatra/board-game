@@ -29,8 +29,18 @@ export function LocalGame() {
           ↺
         </button>
       </header>
-      <PlayerBar session={session} />
-      <TurnBanner session={session} />
+      <PlayerBar
+        session={session}
+        extra={
+          session.def.id === 'monopoly'
+            ? (seat) => {
+                const p = (session.state as { players?: { cash: number; bankrupt: boolean }[] }).players?.[seat];
+                return p ? (p.bankrupt ? '💀' : `$${p.cash}`) : '';
+              }
+            : undefined
+        }
+      />
+      {session.def.id !== 'monopoly' ? <TurnBanner session={session} /> : null}
       <main className="flex flex-1 flex-col justify-center">
         <Board session={session} />
       </main>
